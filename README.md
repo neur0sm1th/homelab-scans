@@ -49,7 +49,7 @@ Exit codes: `0` matches baseline, `1` drift (or no baseline yet), `2` error.
 - Scans are full TCP (`-sV -p-`), run **without sudo** so they stay TCP connect scans, matching the existing baselines.
 - Drift is decided on **open ports only**. `-sV` version guesses for unrecognized services vary between runs (for example, Apprise on `pi5` showed up as blank once and `nginx` the next), so version differences are reported as a note, with the full `ndiff` in `.last/<node>.diff`. Accept a new baseline after updates if you want the version details current.
 - Firewalla's IDS may flag a full scan as an attack. Expect an alert, or allow `silver-2603`.
-- Accepted risks that will always appear: Glances (61208) on `plume` and `pi5` is published without auth.
+- Accepted risks that will always appear: Glances (61208) is published without auth on `plume`, `ozone`, and `pi5`.
 
 ## Coverage
 
@@ -58,5 +58,5 @@ Exit codes: `0` matches baseline, `1` drift (or no baseline yet), `2` error.
 | `plume` | 2026-11-07 |                                         |
 | `ozone` | 2026-11-07 |                                         |
 | `pi5`   | 2026-11-08 |                                         |
-| `tape`  | Not yet    |                                         |
-| `pi4`   | Not yet    | Discovery only (`-sn`) may be enough    |
+| `tape`  | 2026-11-08 |                                         |
+| `pi4`   | 2026-11-08 | 2026-11-08 SSH only                     |
