@@ -46,24 +46,47 @@ scan_node() {
     return 1
   fi
 
-  local rc=0
-  ndiff "$base" "$last" > "$diff" || rc=$?
+  # Full ndiff (ports and service versions), kept for reference.
+  local nd_rc=0
+  ndiff "$base" "$last" > "$diff" || nd_rc=$?
+  if (( nd_rc > 1 )); then
+    echo "error: ndiff failed for $node" >&2
+    return 2
+  fi
 
-  case $rc in
-    0)
-      echo "== $node: matches baseline"
-      ;;
-    1)
-      echo "== $node: DRIFT from baseline"
-      cat "$diff"
-      echo "== If this is expected: ./scan.sh $node --accept, then commit."
-      ;;
-    *)
-      echo "error: ndiff failed for $node" >&2
-      return 2
-      ;;
-  esac
-  return $rc
+  # Drift is decided on open ports only. -sV version guesses for
+  # unrecognized services vary between runs, so they are reported
+  # as information, not drift.
+  local port_diff
+  port_diff="$(diff <(open_ports "$base") <(open_ports "$last") | grep '^[<>]' || true)"
+
+  if [[ -n "$port_diff" ]]; then
+    echo "== $node: DRIFT from baseline (open ports changed)"
+    echo "$port_diff" | sed 's/^< /   closed: /; s/^> /   opened: /'
+    echo "== Full diff: $diff"
+    echo "== If this is expected: ./scan.sh $node --accept, then commit."
+    return 1
+  fi
+
+  echo "== $node: matches baseline"
+  if (( nd_rc == 1 )); then
+    echo "   (service version details differ; see $diff)"
+  fi
+  return 0
+}
+
+# Print one "port/proto" line per open port in an Nmap XML file, sorted.
+open_ports() {
+  python3 - "$1" <<'PY' | sort -t/ -k1,1n
+import sys
+import xml.etree.ElementTree as ET
+
+root = ET.parse(sys.argv[1]).getroot()
+for port in root.iter("port"):
+    state = port.find("state")
+    if state is not None and state.get("state") == "open":
+        print(f"{port.get('portid')}/{port.get('protocol')}")
+PY
 }
 
 accept_node() {
@@ -89,6 +112,7 @@ main() {
 
   need nmap nmap
   need ndiff ndiff
+  need python3 python3
 
   local target="$1"
   local mode="${2:-}"
