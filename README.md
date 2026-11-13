@@ -53,10 +53,10 @@ Exit codes: `0` matches baseline, `1` drift (or no baseline yet), `2` error.
 
 ## Coverage
 
-| Node    | Baseline   | Notes                                   |
-|---------|------------|-----------------------------------------|
-| `plume` | 2026-11-07 |                                         |
-| `ozone` | 2026-11-07 |                                         |
-| `pi5`   | 2026-11-08 |                                         |
-| `tape`  | 2026-11-08 |                                         |
-| `pi4`   | 2026-11-08 | 2026-11-08 SSH only                     |
+| Node    | Baseline   | Notes                                                                   |
+|---------|------------|-------------------------------------------------------------------------|
+| `plume` | 2026-11-07 | Glances (61208) open without auth, accepted                             |
+| `ozone` | 2026-11-07 | Frigate go2rtc/RTSP/WebRTC ports (1984, 8554, 8555) kept as-is          |
+| `pi5`   | 2026-11-08 | Homepage 3000 kept (NPM forwards to it); Glances without auth, accepted |
+| `tape`  | 2026-11-08 | ABB stopped; NFS, Drive, UPS server, WSD, and SAN Manager left on       |
+| `pi4`   | 2026-11-08 | SSH only                                                                |
